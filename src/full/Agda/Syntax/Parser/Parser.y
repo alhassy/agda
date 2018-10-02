@@ -118,7 +118,7 @@ import Agda.Utils.Impossible
     'overlap'                 { TokKeyword KwOverlap $$ }
     'let'                     { TokKeyword KwLet $$ }
     'macro'                   { TokKeyword KwMacro $$ }
-    'module'                  { TokKeyword KwModule $$ }
+    'mmodule'                  { TokKeyword KwModule $$ }
     'mutual'                  { TokKeyword KwMutual $$ }
     'no-eta-equality'         { TokKeyword KwNoEta $$ }
     'open'                    { TokKeyword KwOpen $$ }
@@ -256,7 +256,7 @@ Token
     | 'overlap'                 { TokKeyword KwOverlap $1 }
     | 'let'                     { TokKeyword KwLet $1 }
     | 'macro'                   { TokKeyword KwMacro $1 }
-    | 'module'                  { TokKeyword KwModule $1 }
+    | 'mmodule'                  { TokKeyword KwModule $1 }
     | 'mutual'                  { TokKeyword KwMutual $1 }
     | 'no-eta-equality'         { TokKeyword KwNoEta $1 }
     | 'open'                    { TokKeyword KwOpen $1 }
@@ -1120,11 +1120,11 @@ Renaming
 ImportName_ :: { ImportedName }
 ImportName_
     : beginImpDir Id          { ImportedName $2 }
-    | 'module' beginImpDir Id { ImportedModule $3 }
+    | 'mmodule' beginImpDir Id { ImportedModule $3 }
 
 ImportName :: { ImportedName }
 ImportName : Id          { ImportedName $1 }
-           | 'module' Id { ImportedModule $2 }
+           | 'mmodule' Id { ImportedModule $2 }
 
 -- Actually semi-colon separated
 CommaImportNames :: { [ImportedName] }
@@ -1170,8 +1170,8 @@ WhereClause :: { WhereClause }
 WhereClause
     : {- empty -}                      { NoWhere         }
     | 'where' Declarations0            { AnyWhere $2     }
-    | 'module' Id 'where' Declarations0 { SomeWhere $2 PublicAccess $4 }
-    | 'module' Underscore 'where' Declarations0 { SomeWhere $2 PublicAccess $4 }
+    | 'mmodule' Id 'where' Declarations0 { SomeWhere $2 PublicAccess $4 }
+    | 'mmodule' Underscore 'where' Declarations0 { SomeWhere $2 PublicAccess $4 }
 
 ExprWhere :: { ExprWhere }
 ExprWhere : Expr WhereClause { ExprWhere $1 $2 }
@@ -1509,18 +1509,18 @@ ModuleApplication : ModuleName '{{' '...' DoubleCloseBrace { (\ts ->
 
 -- Module instantiation
 ModuleMacro :: { Declaration }
-ModuleMacro : 'module' ModuleName TypedUntypedBindings '=' ModuleApplication ImportDirective
+ModuleMacro : 'mmodule' ModuleName TypedUntypedBindings '=' ModuleApplication ImportDirective
                     {% do { ma <- $5 (map addType $3)
                           ; name <- ensureUnqual $2
                           ; return $ ModuleMacro (getRange ($1, $2, ma, $6)) name ma DontOpen $6 } }
-            | 'open' 'module' Id TypedUntypedBindings '=' ModuleApplication ImportDirective
+            | 'open' 'mmodule' Id TypedUntypedBindings '=' ModuleApplication ImportDirective
                     {% do {ma <- $6 (map addType $4); return $ ModuleMacro (getRange ($1, $2, $3, ma, $7)) $3 ma DoOpen $7 } }
 
 -- Module
 Module :: { Declaration }
-Module : 'module' ModuleName TypedUntypedBindings 'where' Declarations0
+Module : 'mmodule' ModuleName TypedUntypedBindings 'where' Declarations0
                     { Module (getRange ($1,$2,$3,$4,$5)) $2 (map addType $3) $5 }
-       | 'module' Underscore TypedUntypedBindings 'where' Declarations0
+       | 'mmodule' Underscore TypedUntypedBindings 'where' Declarations0
                     { Module (getRange ($1,$2,$3,$4,$5)) (QName $2) (map addType $3) $5 }
 
 Underscore :: { Name }

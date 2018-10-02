@@ -28,4 +28,47 @@ agda-mode setup
 
 # Now silly0.lagda typechecks.
 
+############################################################################
+#
+# Now trying to make modifications
+
+P=~/agda
+
+cd $P/src/full/Agda/Syntax/Parser
+
+emacs Parser.y &
+# rewrite: 'module' ↦ 'mmodule'
+
+# produce: Parser.hs
+happy Parser.y
+
+emacs Lexer.x &
+# rewrite: module ↦ mmodule
+
+# product: Lexer.hs
+alex Lexer.x
+
+cd $P
+cabal install
+
+emacs silly0.agda &
+#
+# Loading this yields the error:
+# The name of the top level module does not match the file name. The
+# module Primitive should be defined in one of the following files:
+#   /home/alhassy/agda/Primitive.agda
+#   /home/alhassy/agda/Primitive.lagda
+#   /home/alhassy/Projects/agda-stdlib/src/Primitive.agda
+#   /home/alhassy/Projects/agda-stdlib/src/Primitive.lagda
+#   /home/alhassy/RATH-Agda/Primitive.agda
+#   /home/alhassy/RATH-Agda/Primitive.lagda
+#   /home/alhassy/.cabal/share/x86_64-linux-ghc-8.0.2/Agda-2.6.0/lib/prim/Primitive.agda
+#   /home/alhassy/.cabal/share/x86_64-linux-ghc-8.0.2/Agda-2.6.0/lib/prim/Primitive.lagda
+#
+#
+# Changing the module name to “Primitive” does not fix the issue: Same error is reported.
+
+# I would expect silly0.agda to no longer work since it uses the “old” keyword “module”.
+# Instead I'd expect silly1.agda to now work, since it's empty, and uses the new “mmodule” keyword.
+
 
