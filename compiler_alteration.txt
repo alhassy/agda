@@ -1,0 +1,31 @@
+# Notes for altering the Agda compiler.
+#
+#
+
+# fork the agda repo, then clone it locally
+git clone https://github.com/alhassy/agda.git
+
+sudo bash
+
+P=~/agda
+
+export PATH=$P/bin:$PATH
+hash -r
+cd $P
+
+ghc --version
+# The Glorious Glasgow Haskell Compilation System, version 8.0.2
+
+cabal update
+cabal install --dependencies-only --dry-run
+# All the requested packages are already installed
+cabal install
+
+export PATH=~/.cabal/bin:$PATH
+agda-mode setup
+
+# Ensure ~/.emacs works fine.
+
+# Now silly0.lagda typechecks.
+
+
